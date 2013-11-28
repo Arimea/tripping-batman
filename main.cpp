@@ -10,19 +10,23 @@ int main()
     //Luodaan ikkuna
     RenderWindow window(VideoMode(800, 600), "Pelitesti");
 
+
+
+    Time millisekunti = milliseconds(3.f);
+
+    //Tausta eli kentta, jolla liikutaan
     Texture tausta;
-
-    Time millisekunti = milliseconds(1.f);
-
     tausta.loadFromFile("img/Pelitausta.jpg");
+    Sprite piirratausta;
+    piirratausta.setTexture(tausta);
 
+    //vihrea objekti, jota voi liikuttaa kentalla
     Sprite vihree;
     vihree.setTexture(tausta);
     vihree.setColor(Color(0, 255, 0));
-    vihree.setScale(0.1, 0.1);
+    vihree.setScale(0.035, 0.05);
 
-    Sprite piirratausta;
-    piirratausta.setTexture(tausta);
+
 
     while (window.isOpen())
     {
