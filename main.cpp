@@ -6,7 +6,7 @@
 int main()
 {
     using namespace sf;
-
+    //printf(2)
     //Luodaan ikkuna
     RenderWindow window(VideoMode(800, 600), "Pelitesti");
 
