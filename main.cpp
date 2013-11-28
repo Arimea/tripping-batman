@@ -14,7 +14,7 @@ int main()
 
     Time millisekunti = milliseconds(1.f);
 
-    tausta.loadFromFile("img/tausta.jpg");
+    tausta.loadFromFile("img/Pelitausta.jpg");
 
     Sprite vihree;
     vihree.setTexture(tausta);

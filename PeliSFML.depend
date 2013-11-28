@@ -406,3 +406,9 @@
 	<SFML/System/Thread.hpp>
 	<vector>
 
+1385663569 source:c:\users\miika\documents\github\tripping-batman\main.cpp
+	<SFML/Graphics.hpp>
+	<iostream>
+	<string>
+	<stdio.h>
+
