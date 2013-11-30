@@ -59,9 +59,11 @@
 			<Add option="-std=c++11" />
 			<Add directory="C:/Libs/SFML-2.1/lib" />
 		</Linker>
-		<Unit filename="img/lippu.tga" />
-		<Unit filename="img/tahti.tga" />
-		<Unit filename="img/tausta.jpg" />
+		<Unit filename="D:/Koodaus/PeliSFML/img/Pelitausta.jpg" />
+		<Unit filename="img/Pelitaustatyhjahitech.jpg" />
+		<Unit filename="img/esteethitech.png" />
+		<Unit filename="img/pallo.png" />
+		<Unit filename="img/pelaajahitech.png" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

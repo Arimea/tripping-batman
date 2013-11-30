@@ -2,13 +2,15 @@
 #include <iostream>
 #include <string>
 #include <stdio.h>
+#include <sstream>
+#include <vector>
+#include <cctype>
 
 sf::Sprite rotation(sf::Sprite kaannettava)
 {
-
     using namespace sf;
     Time millisekunti = milliseconds(3.f);
-    Time skaalasekunti = milliseconds(20.f);
+    //Time skaalasekunti = milliseconds(20.f);
 
     if(Keyboard::isKeyPressed(Keyboard::Left))
     {
@@ -26,7 +28,6 @@ sf::Sprite rotation(sf::Sprite kaannettava)
     return kaannettava;
 }
 
-
 int main()
 {
 
@@ -37,44 +38,49 @@ int main()
     //float rotaatio;
     int palloSkaala=0;
 
-    //Temp-olento
-    Sprite temp;
-    Sprite tempvarjo;
 
     //Luodaan ikkuna
     RenderWindow window(VideoMode(800, 600), "Pelitesti");
 
     Time skaalasekunti = milliseconds(100.f);
-    Time millisekunti = milliseconds(3.f);
+    Time millisekunti = milliseconds(2.f);
 
     //Tausta eli kentta, jolla liikutaan
-    Texture tausta;
-    tausta.loadFromFile("img/Pelitaustatyhjahitech.jpg");
-    Sprite piirratausta;
-    piirratausta.setTexture(tausta);
+    Texture taustaText;
+    taustaText.loadFromFile("img/Pelitaustatyhjahitech.jpg");
+    Sprite tausta;
+    tausta.setTexture(taustaText);
 
     //Ruskeat esteet laudalla
-    Texture esteet;
-    esteet.loadFromFile("img/esteethitech.png");
-    Sprite piirraesteet;
-    piirraesteet.setTexture(esteet);
+    Texture esteetText;
+    esteetText.loadFromFile("img/esteethitech.png");
+    Sprite esteet;
+    esteet.setTexture(esteetText);
 
     //Pelaajaobjekti, jota voi liikuttaa kentalla
-    Texture pallo;
-    pallo.loadFromFile("img/pelaajahitech.png");
-    Sprite piirrapallo;
-    piirrapallo.setTexture(pallo);
-    //piirrapallo.setColor(Color(0, 255, 0));
-    piirrapallo.setScale(0.6, 0.6); //28x30, alkup. 800x600
-    piirrapallo.setOrigin(50,50);//eli onnistui
+    Texture pelaajaText;
+    pelaajaText.loadFromFile("img/pelaajahitech.png");
+    Sprite pelaaja;
+    pelaaja.setTexture(pelaajaText);
+    pelaaja.setScale(0.6, 0.6); //28x30, alkup. 800x600
+    pelaaja.setOrigin(50,50);//eli onnistui
 
     //Pelaajaobjektin "stealth"-sprite
-    Texture varjopallo;
-    varjopallo.loadFromFile("img/pelaajahitechstealth.png");
-    Sprite piirravarjopallo;
-    piirravarjopallo.setTexture(varjopallo);
-    piirravarjopallo.setScale(0.6,0.6);
-    piirravarjopallo.setOrigin(50,50);
+    Texture pelaajaStealthText;
+    pelaajaStealthText.loadFromFile("img/pelaajahitechstealth.png");
+    Sprite pelaajaStealth;
+    pelaajaStealth.setTexture(pelaajaStealthText);
+    pelaajaStealth.setScale(0.6,0.6);
+    pelaajaStealth.setOrigin(50,50);
+
+    //Luodaan testaamiseen toinen pelaaja
+    Texture pelaaja2Text;
+    pelaaja2Text.loadFromFile("img/pallo.png");
+    Sprite pelaaja2;
+    pelaaja2.setTexture(pelaaja2Text);
+    pelaaja2.setScale(0.6, 0.6); //28x30, alkup. 800x600
+    pelaaja2.setOrigin(50,50);//eli onnistui
+    pelaaja2.setPosition(400,300);
 
 
 
@@ -85,29 +91,39 @@ int main()
             window.close();
         }
 
+        if (pelaaja.getGlobalBounds().intersects(pelaaja2.getGlobalBounds()))
+        {
+            pelaaja.setScale(1.0,1.0);
+        }
+        else
+        {
+            pelaaja.setScale(0.6,0.6);
+        }
+
+
     //LIIKE
         //vihree=rotation(vihree);
         //rotaatio=vihree.getRotation();
         if(Keyboard::isKeyPressed(Keyboard::Right))
-        {piirrapallo.move(0.5,0);piirrapallo.setRotation(90);}
+        {pelaaja.move(2,0);pelaaja.setRotation(90);}
         if(Keyboard::isKeyPressed(Keyboard::Left))
-        {piirrapallo.move(-0.5,0);piirrapallo.setRotation(270);}
+        {pelaaja.move(-2,0);pelaaja.setRotation(270);}
         if(Keyboard::isKeyPressed(Keyboard::Up))
-        {piirrapallo.move(0,-0.5);piirrapallo.setRotation(0);}
+        {pelaaja.move(0,-2);pelaaja.setRotation(0);}
         if(Keyboard::isKeyPressed(Keyboard::Down))
-        {piirrapallo.move(0,0.5);piirrapallo.setRotation(180);}
+        {pelaaja.move(0,2);pelaaja.setRotation(180);}
         if(Keyboard::isKeyPressed(Keyboard::Space)) //Pallon skaalaus valilyonnista
             {
                 if(palloSkaala==0)
                 {
-                    piirrapallo.setTexture(varjopallo);
+                    pelaaja.setTexture(pelaajaStealthText);
                     palloSkaala++;
                     sleep(skaalasekunti);
 
                 }
                 else
                 {
-                    piirrapallo.setTexture(pallo);
+                    pelaaja.setTexture(pelaajaText);
                     palloSkaala--;
                     sleep(skaalasekunti);
                 }
@@ -122,17 +138,17 @@ int main()
             }
 
         if((Keyboard::isKeyPressed(Keyboard::Right)) && (Keyboard::isKeyPressed(Keyboard::Up)))
-            {piirrapallo.move(-0.15,0.15);
-            piirrapallo.setRotation(45);}
+            {pelaaja.move(-0.3,0.3);
+            pelaaja.setRotation(45);}
         if((Keyboard::isKeyPressed(Keyboard::Right)) && (Keyboard::isKeyPressed(Keyboard::Down)))
-            {piirrapallo.move(-0.15,-0.15);
-            piirrapallo.setRotation(135);}
+            {pelaaja.move(-0.3,-0.3);
+            pelaaja.setRotation(135);}
         if((Keyboard::isKeyPressed(Keyboard::Left)) && (Keyboard::isKeyPressed(Keyboard::Up)))
-            {piirrapallo.move(0.15,0.15);
-            piirrapallo.setRotation(315);}
+            {pelaaja.move(0.3,0.3);
+            pelaaja.setRotation(315);}
         if((Keyboard::isKeyPressed(Keyboard::Left)) && (Keyboard::isKeyPressed(Keyboard::Down)))
-            {piirrapallo.move(0.15,-0.15);
-            piirrapallo.setRotation(225);}
+            {pelaaja.move(0.3,-0.3);
+            pelaaja.setRotation(225);}
 
 
         Event event;
@@ -144,9 +160,10 @@ int main()
 
         //render
         window.clear();
-        window.draw(piirratausta);
-        window.draw(piirraesteet);
-        window.draw(piirrapallo);
+        window.draw(tausta);
+        window.draw(esteet);
+        window.draw(pelaaja2);
+        window.draw(pelaaja);
         window.display();
         sleep(millisekunti);
     }

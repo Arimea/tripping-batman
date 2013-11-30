@@ -1,103 +1,146 @@
-#include <SFML/Graphics.hpp>
 
-int main()
-{
-    // Create window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "SFML");
-    // Limit frame-rate
-    window.setFramerateLimit(60);
 
-    // Keep track of the frametime
-    sf::Clock frametime;
+    #include <SFML/Graphics.hpp>
+    #include "ResourcePath.hpp"
+    #include <vector>
+    #include <cmath>
 
-    // Big floor
-    sf::RectangleShape floor(sf::Vector2f(800.f, 40.f));
-    floor.setPosition(0.f, 560.f);
-    floor.setFillColor(sf::Color(10, 180, 30));
-
-    // Small box
-    sf::RectangleShape box(sf::Vector2f(40.f, 40.f));
-    box.setPosition(500.f, 480.f);
-    box.setFillColor(sf::Color(10, 180, 30));
-
-    // Movable player
-    sf::RectangleShape player(sf::Vector2f(40.f, 40.f));
-    player.setOrigin(20.f, 20.f);
-    player.setPosition(400.f, 40.f);
-    player.setFillColor(sf::Color(10, 30, 180));
-
-    // Player speed
-    sf::Vector2f speed(0.f, 0.f);
-
-    // Gravity value
-    const float gravity = 980.f;
-
-    // Check if we're touching any floor/box
-    bool touching = false;
-
-    while(window.isOpen())
+    int main()
     {
-        // Get delta time for frame-rate depended movement
-        float dt = frametime.restart().asSeconds();
+            // Create the main window
+            sf::RenderWindow window(sf::VideoMode(800, 600), "SFML window");
 
-        // Event handling
-        sf::Event event;
-        while(window.pollEvent(event))
-        {
-            if(event.type == sf::Event::Closed)
-                window.close();
-        }
+            // Load a sprite to display
+            sf::Texture texture;
+            if (!texture.loadFromFile(resourcePath() + "graphics/thing.png"))
+                    return EXIT_FAILURE;
+            sf::Sprite sprite(texture);
+            sprite.setOrigin(sprite.getLocalBounds().width / 2,sprite.getLocalBounds().height / 2);
+            sprite.setPosition(window.getSize().x / 3,window.getSize().y / 3);
 
-        // Slow down horizontal speed
-        if(speed.x > 6.f)
-            speed.x -= 3.f;
-        else if(speed.x < -6.f)
-            speed.x += 3.f;
-        else
-            speed.x = 0.f;
+            sf::Texture texObstacle;
+            if (!texObstacle.loadFromFile(resourcePath() + "graphics/obstacle.png"))
+                    return EXIT_FAILURE;
+            sf::Sprite sprObstacle(texObstacle);
+            sprObstacle.setOrigin(sprObstacle.getLocalBounds().width / 2,sprObstacle.getLocalBounds().height / 2);
 
-        // Adjust vertical speed
-        if(touching)
-            speed.y = gravity;
-        else if(speed.y < gravity)
-            speed.y += 10.f;
-        else if(speed.y > gravity)
-            speed.y = gravity;
+            std::vector<sf::Vector2f> obstacles;
+            unsigned countObstacles(6);
+            for (unsigned i(0); i < countObstacles; ++ i)
+                    for (unsigned j(0); j < 2; ++ j)
+                            obstacles.push_back(sf::Vector2f(sprObstacle.getOrigin().x * 2 + sprObstacle.getLocalBounds().width * i,
+                                                             sprObstacle.getOrigin().y * 2 + countObstacles * j * sprObstacle.getLocalBounds().height));
+            countObstacles *= 2;
+            unsigned add(5);
+            for (unsigned i(0); i < add; ++ i)
+                    for (unsigned j(0); j < 2; ++ j)
+                            obstacles.push_back(sf::Vector2f(sprObstacle.getOrigin().x * 2 + add * j * sprObstacle.getLocalBounds().width,
+                                                             sprObstacle.getOrigin().y * 4 + sprObstacle.getLocalBounds().height * i));
+            countObstacles += add * 2;
 
-        // Horizontal movement
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-            speed.x = 0.f;
-        else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-            speed.x = -120.f;
-        else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-            speed.x = 120.f;
+            const float speed(100.f);
+            sf::Clock clock;
 
-        // Jumping
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && touching)
-            speed.y = -300.f;
+            // Start the game loop
+            while (window.isOpen())
+            {
+                    // Process events
+                    sf::Event event;
+                    while (window.pollEvent(event))
+                    {
+                            // Close window : exit
+                            if (event.type == sf::Event::Closed)
+                                    window.close();
 
-        // Move the player
-        player.setPosition(player.getPosition().x + speed.x * dt, player.getPosition().y + speed.y * dt);
+                            // Escape pressed : exit
+                            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+                                    window.close();
+                    }
 
-        // Check collision & position adjustment
-        if(floor.getGlobalBounds().intersects(player.getGlobalBounds())) // Floor
-        {
-            player.setPosition(player.getPosition().x, floor.getPosition().y-player.getOrigin().y);
-            touching = true;
-        }
-        else if(box.getGlobalBounds().intersects(player.getGlobalBounds())) // Box
-        {
-            player.setPosition(player.getPosition().x, box.getPosition().y-player.getOrigin().y);
-            touching = true;
-        }
-        else // We're not colliding
-            touching = false;
+                    // Clear screen
+                    window.clear(sf::Color::White);
 
-        // Render
-        window.clear();
-        window.draw(player);
-        window.draw(box);
-        window.draw(floor);
-        window.display();
+                    const double dt(clock.restart().asSeconds());
+
+                    bool movedLeft(false), movedRight(false), movedUp(false), movedDown(false);
+
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+                     {
+                            sprite.move(-speed * dt,.0f);
+                            movedLeft = true;
+                     }
+                    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+                     {
+                            sprite.move(speed * dt,.0f);
+                            movedRight = true;
+                     }
+
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+                     {
+                            sprite.move(.0f,-speed * dt);
+                            movedUp = true;
+                     }
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+                     {
+                            sprite.move(.0f,speed * dt);
+                            movedDown = true;
+                     }
+
+                    for (unsigned i(0); i < countObstacles; ++ i)
+                     {
+                            sprObstacle.setPosition(obstacles[i]);
+                            window.draw(sprObstacle);
+
+                            // COLLISION CODE STARTS HERE
+
+                            const sf::Vector2f op(sprObstacle.getPosition()),
+                                               sp(sprite.getPosition());
+                            const float ow(sprObstacle.getLocalBounds().width / 2),
+                                        sw(sprite.getLocalBounds().width / 2),
+                                                    oh(sprObstacle.getLocalBounds().height / 2),
+                                                    sh(sprite.getLocalBounds().height / 2),
+                                                    distx(std::abs(sp.x - op.x)),
+                                            disty(std::abs(sp.y - op.y));
+
+                            if (sprite.getGlobalBounds().intersects(sprObstacle.getGlobalBounds()))
+                             {
+                                    if (movedLeft || movedRight)
+                                     {
+                                            if (!((movedUp || movedDown) && disty > distx))
+                                             {
+                                                    if (sp.x >= op.x)
+                                                            sprite.setPosition(op.x + ow + sw,sprite.getPosition().y);
+                                                    else
+                                                            sprite.setPosition(op.x - ow - sw,sprite.getPosition().y);
+                                             }
+                                     }
+                             }
+
+                            if (sprite.getGlobalBounds().intersects(sprObstacle.getGlobalBounds()))
+                             {
+                                    if (movedUp || movedDown)
+                                     {
+                                            if (!((movedLeft || movedRight) && distx > disty))
+                                             {
+                                                    if (sp.y >= op.y)
+                                                            sprite.setPosition(sprite.getPosition().x,op.y + oh + sh);
+                                                    else
+                                                            sprite.setPosition(sprite.getPosition().x,op.y - oh - sh);
+                                             }
+                                     }
+                             }
+
+                            // COLLISION CODE ENDS HERE
+                     }
+
+                    // Draw the sprite
+                    window.draw(sprite);
+
+                    // Update the window
+                    window.display();
+            }
+
+            return EXIT_SUCCESS;
     }
-}
+
+
